@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧AED生態系統｜互動儀表板</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Professional (Slate, Sky, Amber) -->
+    <!-- Application Structure Plan: A non-linear, dashboard-style SPA with thematic sections (Problem, Solution, Technology, Market, Blueprint). This structure allows stakeholders to quickly access the information most relevant to them (e.g., an engineer can dive into the tech comparison, while an investor can use the revenue calculator). It transforms a dense report into an exploratory tool. Key interactions include an interactive tech comparator and a revenue projection calculator to drive engagement and understanding. -->
+    <!-- Visualization & Content Choices:
+    - Market Growth: Goal: Show change. Viz: Chart.js Line Chart. Interaction: Hover for tooltips. Justification: Clearly visualizes the key market trend.
+    - Revenue Potential: Goal: Inform/Engage. Viz: HTML Form + JS Calculator. Interaction: User inputs data to see custom projections. Justification: Highly engaging, makes the business case tangible.
+    - Tech Comparison: Goal: Compare. Viz: Interactive Toggles/Tabs (HTML/JS). Interaction: Click to switch views. Justification: Simplifies a complex comparison table into a digestible, interactive element.
+    - Systemic Failures: Goal: Inform. Viz: Icons + Text (HTML/CSS). Interaction: Hover/click for details. Justification: Breaks down the core problem into easily understandable points.
+    - All visualizations use Canvas (Chart.js) or structured HTML/CSS with Tailwind. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
+        .chart-container { position: relative; width: 100%; max-width: 700px; margin-left: auto; margin-right: auto; height: 300px; max-height: 40vh; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .nav-link { transition: color 0.3s, border-color 0.3s; }
+        .active-nav { color: #0284c7; border-bottom-color: #0284c7; }
+        .inactive-nav { color: #475569; border-bottom-color: transparent; }
+        .tech-btn-active { background-color: #0c4a6e; color: white; }
+        .tech-btn-inactive { background-color: #e2e8f0; color: #334155; }
+        .stat-card { transition: transform 0.3s, box-shadow 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header id="header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-sky-700">智慧AED生態系</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#problem" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">問題癥結</a>
+                        <a href="#solution" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">解決方案</a>
+                        <a href="#technology" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">關鍵技術</a>
+                        <a href="#market" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">市場商機</a>
+                        <a href="#blueprint" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">實施藍圖</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white">
+                        <span class="sr-only">開啟主選單</span>
+                        <div id="menu-icon-open" class="block h-6 w-6">
+                            <span class="block h-0.5 w-6 bg-slate-600 mb-1"></span>
+                            <span class="block h-0.5 w-6 bg-slate-600 mb-1"></span>
+                            <span class="block h-0.5 w-6 bg-slate-600"></span>
+                        </div>
+                         <div id="menu-icon-close" class="hidden h-6 w-6">
+                            <span class="block h-0.5 w-6 bg-slate-600 rotate-45 translate-y-0.5"></span>
+                            <span class="block h-0.5 w-6 bg-slate-600 -rotate-45 -translate-y-0.5"></span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#problem" class="nav-link block px-3 py-2 rounded-md text-base font-medium">問題癥結</a>
+                <a href="#solution" class="nav-link block px-3 py-2 rounded-md text-base font-medium">解決方案</a>
+                <a href="#technology" class="nav-link block px-3 py-2 rounded-md text-base font-medium">關鍵技術</a>
+                <a href="#market" class="nav-link block px-3 py-2 rounded-md text-base font-medium">市場商機</a>
+                <a href="#blueprint" class="nav-link block px-3 py-2 rounded-md text-base font-medium">實施藍圖</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="relative bg-sky-700 text-white text-center py-20 sm:py-32 px-4">
+            <div class="absolute inset-0 bg-black opacity-30"></div>
+            <div class="relative z-10">
+                <h1 class="text-4xl md:text-6xl font-bold tracking-tight">公眾AED的弔詭</h1>
+                <p class="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-sky-200">高密度部署，卻是低效益的救援。本報告旨在論證，透過物聯網技術，我們能將AED從被動的物件，轉變為智慧應急網絡中的主動節點，徹底釋放其救生潛力。</p>
+            </div>
+        </section>
+
+        <section id="problem" class="py-16 sm:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">問題癥結：為何救命神器淪為裝飾品？</h2>
+                    <p class="mt-4 text-lg text-slate-600">儘管AED設置密度高，實際使用率卻極低。這並非設備不足，而是整個應急反應系統的失靈。</p>
+                </div>
+
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="stat-card bg-slate-50 p-6 rounded-lg shadow-md border-l-4 border-amber-500">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-amber-100 text-amber-600">
+                                <span class="text-2xl font-bold">!</span>
+                            </div>
+                            <h3 class="ml-4 text-xl font-semibold text-slate-800">整備性失靈</h3>
+                        </div>
+                        <p class="mt-4 text-slate-600">高達 30-40% 的AED因電池過期、貼片失效或缺乏維護而無法使用。當救援者找到設備卻發現其無法運作時，將導致悲劇性後果。</p>
+                    </div>
+                    <div class="stat-card bg-slate-50 p-6 rounded-lg shadow-md border-l-4 border-rose-500">
+                        <div class="flex items-center">
+                             <div class="p-3 rounded-full bg-rose-100 text-rose-600">
+                                <span class="text-2xl font-bold">?</span>
+                            </div>
+                            <h3 class="ml-4 text-xl font-semibold text-slate-800">可見性與可及性失靈</h3>
+                        </div>
+                        <p class="mt-4 text-slate-600">緊急情況下，民眾不知道AED在哪，或因設備被鎖在櫃中、位於已關閉的建築內而無法取得。對失竊的恐懼，比失竊本身造成更大危害。</p>
+                    </div>
+                    <div class="stat-card bg-slate-50 p-6 rounded-lg shadow-md border-l-4 border-sky-500">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-sky-100 text-sky-600">
+                                <span class="text-2xl font-bold">⇄</span>
+                            </div>
+                            <h3 class="ml-4 text-xl font-semibold text-slate-800">整合性失靈</h3>
+                        </div>
+                        <p class="mt-4 text-slate-600">公眾AED如孤島般運作，與緊急醫療服務(EMS)的調度系統缺乏即時聯繫，事件後的關鍵數據也未能自動傳輸，不利於提升救援品質。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="py-16 sm:py-24 bg-slate-100">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">解決方案：建構智慧AED生態系統</h2>
+                    <p class="mt-4 text-lg text-slate-600">將每一台AED從孤立的物件，轉變為互聯的智慧節點，實現主動監測、即時定位與無縫整合。</p>
+                </div>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="bg-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-center text-rose-600">現況：被動的孤島</h3>
+                        <div class="mt-6 flex flex-col items-center space-y-4 text-slate-600">
+                            <div class="flex items-center"><span class="text-rose-500 mr-2">✗</span><span>人工巡檢，耗時耗力</span></div>
+                            <div class="flex items-center"><span class="text-rose-500 mr-2">✗</span><span>位置固定，難以尋找</span></div>
+                            <div class="flex items-center"><span class="text-rose-500 mr-2">✗</span><span>狀態未知，風險極高</span></div>
+                            <div class="flex items-center"><span class="text-rose-500 mr-2">✗</span><span>數據孤立，無法分析</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-sky-900 text-white p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-center text-sky-300">未來：主動的節點</h3>
+                         <div class="mt-6 flex flex-col items-center space-y-4">
+                            <div class="flex items-center"><span class="text-sky-400 mr-2">✓</span><span>自動監測，即時預警</span></div>
+                            <div class="flex items-center"><span class="text-sky-400 mr-2">✓</span><span>動態定位，調度整合</span></div>
+                            <div class="flex items-center"><span class="text-sky-400 mr-2">✓</span><span>狀態透明，確保可用</span></div>
+                            <div class="flex items-center"><span class="text-sky-400 mr-2">✓</span><span>數據聯網，持續優化</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="technology" class="py-16 sm:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">關鍵技術：選擇正確的通訊方案</h2>
+                    <p class="mt-4 text-lg text-slate-600">消費級追蹤器（如AirTag）無法滿足公共安全需求。專業級低功耗廣域網路（LPWAN）才是正解。</p>
+                </div>
+                <div class="mt-12 max-w-4xl mx-auto">
+                    <div class="bg-rose-100 border-l-4 border-rose-500 text-rose-700 p-4 rounded-r-lg mb-8" role="alert">
+                      <p class="font-bold">為何AirTag等消費級技術不適用？</p>
+                      <p>依賴機率性的群眾網路，無法保證連線；僅回報位置，無法監測設備狀態；封閉的生態系統，無法與公共安全系統整合。</p>
+                    </div>
+
+                    <div class="flex justify-center space-x-2 md:space-x-4 mb-8">
+                        <button id="btn-nb-iot" class="tech-btn-active text-sm md:text-base font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-300">NB-IoT</button>
+                        <button id="btn-lorawan" class="tech-btn-inactive text-sm md:text-base font-semibold py-3 px-6 rounded-lg shadow-md transition-all duration-300">LoRaWAN</button>
+                    </div>
+
+                    <div id="tech-info-nb-iot" class="bg-slate-50 p-6 rounded-lg shadow-inner">
+                        <h3 class="text-2xl font-bold text-sky-800">NB-IoT (窄頻物聯網)</h3>
+                        <p class="mt-2 text-slate-600 font-medium">適用於城市級可靠性的電信級解決方案</p>
+                        <ul class="mt-4 space-y-3 text-slate-700 list-disc list-inside">
+                            <li><span class="font-semibold">高可靠性：</span>運作於授權頻譜，由電信商提供服務品質保障，干擾少，對攸關生命的設備至關重要。</li>
+                            <li><span class="font-semibold">深度覆蓋：</span>專為穿透建築物、地下室和密集城市環境設計，確保訊號穩定。</li>
+                            <li><span class="font-semibold">簡化部署：</span>利用現有蜂巢式基地台，無需自建網路基礎設施。</li>
+                            <li><span class="font-semibold">最佳應用：</span>全市性的公共場所、政府建築、交通系統等需要最高可靠性的場景。</li>
+                        </ul>
+                    </div>
+                    <div id="tech-info-lorawan" class="hidden bg-slate-50 p-6 rounded-lg shadow-inner">
+                        <h3 class="text-2xl font-bold text-emerald-800">LoRaWAN (長距離廣域網路)</h3>
+                        <p class="mt-2 text-slate-600 font-medium">適用於私有和園區網路的彈性解決方案</p>
+                        <ul class="mt-4 space-y-3 text-slate-700 list-disc list-inside">
+                            <li><span class="font-semibold">超低功耗：</span>電池續航力可達10年以上，適合無外部電源、需長期低維護的部署。</li>
+                            <li><span class="font-semibold">成本效益：</span>若建立私有網路，無經常性電信月租費，長期總體擁有成本較低。</li>
+                            <li><span class="font-semibold">部署彈性：</span>允許為特定區域建立專用網路，擁有者可完全控制基礎設施。</li>
+                            <li><span class="font-semibold">最佳應用：</span>大學校園、工業園區、大型度假村或行動網路覆蓋不佳的鄉村地區。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="market" class="py-16 sm:py-24 bg-slate-100">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">市場商機：一個快速增長的藍海</h2>
+                    <p class="mt-4 text-lg text-slate-600">全球AED市場正穩定增長，而「智慧化管理」是其中最具潛力的區塊。</p>
+                </div>
+
+                <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-2xl font-semibold text-center mb-4">全球AED市場規模預測 (美元)</h3>
+                        <div class="chart-container bg-white p-4 rounded-lg shadow-lg">
+                            <canvas id="marketChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold text-center mb-4">互動營收潛力計算機</h3>
+                        <div class="bg-white p-6 rounded-lg shadow-lg">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="aed-units" class="block text-sm font-medium text-slate-700">輸入預計部署的AED數量</label>
+                                    <input type="number" id="aed-units" value="500" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2">
+                                </div>
+                                <div>
+                                    <label for="revenue-model" class="block text-sm font-medium text-slate-700">選擇營收模式</label>
+                                    <select id="revenue-model" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2">
+                                        <option value="sale_subscription">硬體銷售 + 平台訂閱</option>
+                                        <option value="haas">全服務租賃 (HaaS)</option>
+                                    </select>
+                                </div>
+                                <button id="calculate-btn" class="w-full bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-700 transition-colors">計算首年預估總營收</button>
+                            </div>
+                            <div id="revenue-result" class="mt-6 text-center bg-sky-50 p-4 rounded-lg hidden">
+                                <p class="text-slate-600">首年預估總營收</p>
+                                <p id="revenue-amount" class="text-4xl font-bold text-sky-700"></p>
+                                <p id="revenue-breakdown" class="text-sm text-slate-500 mt-1"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="blueprint" class="py-16 sm:py-24 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">實施藍圖：分階段推展策略</h2>
+                    <p class="mt-4 text-lg text-slate-600">從試點計畫到全面整合，我們提供一條清晰、可行的路徑，將智慧AED網路變為現實。</p>
+                </div>
+                <div class="mt-12 relative">
+                    <div class="hidden md:block absolute top-4 left-0 w-full h-0.5 bg-slate-200"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center relative">
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center justify-center w-16 h-16 rounded-full bg-sky-600 text-white text-2xl font-bold shadow-lg z-10">1</div>
+                            <h3 class="mt-4 text-xl font-semibold">第一階段：試點計畫</h3>
+                            <p class="mt-2 text-slate-600">在特定高密度區域部署，驗證技術、完善流程、收集數據。</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center justify-center w-16 h-16 rounded-full bg-sky-600 text-white text-2xl font-bold shadow-lg z-10">2</div>
+                            <h3 class="mt-4 text-xl font-semibold">第二階段：規模化部署</h3>
+                            <p class="mt-2 text-slate-600">根據試點經驗，擴展至所有高優先級場所，如學校、交通樞紐等。</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center justify-center w-16 h-16 rounded-full bg-sky-600 text-white text-2xl font-bold shadow-lg z-10">3</div>
+                            <h3 class="mt-4 text-xl font-semibold">第三階段：全面整合</h3>
+                            <p class="mt-2 text-slate-600">將AED網路完全整合至城市應急反應與智慧城市基礎設施中。</p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="mt-16 text-center bg-slate-100 p-8 rounded-lg">
+                    <h3 class="text-2xl font-bold">克服非技術性障礙</h3>
+                    <p class="mt-4 max-w-3xl mx-auto text-slate-700">成功不僅僅是技術。我們還需與政策制定者、法律部門和培訓機構合作，通過「賦能型法規」、推動行業標準化、提升公眾意識，共同創造一個支持性的「社會-技術」環境，以確保智慧AED系統能發揮最大效益。</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-white">
+        <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p>智慧AED生態系統互動儀表板</p>
+            <p class="mt-2 text-sm text-slate-400">以數據驅動決策，用科技拯救生命。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIconOpen = document.getElementById('menu-icon-open');
+            const menuIconClose = document.getElementById('menu-icon-close');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                menuIconOpen.classList.toggle('hidden');
+                menuIconClose.classList.toggle('hidden');
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (!mobileMenu.classList.contains('hidden')) {
+                         mobileMenu.classList.add('hidden');
+                         menuIconOpen.classList.remove('hidden');
+                         menuIconClose.classList.add('hidden');
+                    }
+                });
+            });
+            
+            const sections = document.querySelectorAll('section[id]');
+            const header = document.getElementById('header');
+            
+            const observerOptions = {
+                root: null,
+                rootMargin: `-${header.offsetHeight}px 0px 0px 0px`,
+                threshold: 0.3
+            };
+
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    const navLink = document.querySelector(`.nav-link[href="#${id}"]`);
+                    
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => link.classList.remove('active-nav'));
+                        navLinks.forEach(link => link.classList.add('inactive-nav'));
+                        if(navLink) {
+                           navLink.classList.add('active-nav');
+                           navLink.classList.remove('inactive-nav');
+                        }
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            const btnNbIot = document.getElementById('btn-nb-iot');
+            const btnLorawan = document.getElementById('btn-lorawan');
+            const infoNbIot = document.getElementById('tech-info-nb-iot');
+            const infoLorawan = document.getElementById('tech-info-lorawan');
+
+            btnNbIot.addEventListener('click', () => {
+                infoNbIot.classList.remove('hidden');
+                infoLorawan.classList.add('hidden');
+                btnNbIot.classList.replace('tech-btn-inactive', 'tech-btn-active');
+                btnLorawan.classList.replace('tech-btn-active', 'tech-btn-inactive');
+            });
+
+            btnLorawan.addEventListener('click', () => {
+                infoLorawan.classList.remove('hidden');
+                infoNbIot.classList.add('hidden');
+                btnLorawan.classList.replace('tech-btn-inactive', 'tech-btn-active');
+                btnNbIot.classList.replace('tech-btn-active', 'tech-btn-inactive');
+            });
+
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            const marketChart = new Chart(marketCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2024', '2025', '2026', '2027', '2028', '2029', '2030', '2031', '2032', '2033'],
+                    datasets: [{
+                        label: '全球AED市場規模 (億美元)',
+                        data: [9.388, 10.27, 11.24, 12.30, 13.46, 14.73, 16.12, 17.64, 19.27, 21.073],
+                        backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                        borderColor: 'rgba(14, 165, 233, 1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: 'rgba(14, 165, 233, 1)',
+                        pointRadius: 5,
+                        tension: 0.4,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                             ticks: {
+                                callback: function(value, index, values) {
+                                    return '$' + value + '億';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y) + '億';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const unitsInput = document.getElementById('aed-units');
+            const modelSelect = document.getElementById('revenue-model');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resultDiv = document.getElementById('revenue-result');
+            const amountP = document.getElementById('revenue-amount');
+            const breakdownP = document.getElementById('revenue-breakdown');
+
+            const prices = {
+                sale_subscription: {
+                    hardware: 250,
+                    service: 180,
+                },
+                haas: {
+                    contract: 250,
+                }
+            };
+
+            function calculateRevenue() {
+                const units = parseInt(unitsInput.value) || 0;
+                const model = modelSelect.value;
+                let totalRevenue = 0;
+                let breakdownText = '';
+
+                if (model === 'sale_subscription') {
+                    const hardwareRevenue = units * prices.sale_subscription.hardware;
+                    const serviceRevenue = units * prices.sale_subscription.service;
+                    totalRevenue = hardwareRevenue + serviceRevenue;
+                    breakdownText = `硬體營收: $${hardwareRevenue.toLocaleString()} + 年服務費營收: $${serviceRevenue.toLocaleString()}`;
+                } else if (model === 'haas') {
+                    totalRevenue = units * prices.haas.contract;
+                    breakdownText = `年合約總金額: ${units}台 x $${prices.haas.contract}/台`;
+                }
+
+                amountP.textContent = `$${totalRevenue.toLocaleString()}`;
+                breakdownP.textContent = breakdownText;
+                resultDiv.classList.remove('hidden');
+            }
+
+            calculateBtn.addEventListener('click', calculateRevenue);
+            
+            calculateRevenue();
+        });
+    </script>
+</body>
+</html>
