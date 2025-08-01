@@ -10,25 +10,27 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Calm Professional (Slate, Sky, Amber) -->
-    <!-- Application Structure Plan: A non-linear, dashboard-style SPA with thematic sections (Problem, Solution, Technology, Market, Blueprint). This structure allows stakeholders to quickly access the information most relevant to them (e.g., an engineer can dive into the tech comparison, while an investor can use the revenue calculator). It transforms a dense report into an exploratory tool. Key interactions include an interactive tech comparator and a revenue projection calculator to drive engagement and understanding. -->
+    <!-- Application Structure Plan: A non-linear, dashboard-style SPA with thematic sections (Problem, Solution, Technology, Market/Cost, Blueprint). This structure allows stakeholders (public health, tech, investors) to directly access relevant information. It transforms dense reports into an exploratory tool. Key interactions include an interactive tech comparator and a dynamic cost/revenue calculator that integrates data from both source documents, making the business case tangible and engaging. -->
     <!-- Visualization & Content Choices:
-    - Market Growth: Goal: Show change. Viz: Chart.js Line Chart. Interaction: Hover for tooltips. Justification: Clearly visualizes the key market trend.
-    - Revenue Potential: Goal: Inform/Engage. Viz: HTML Form + JS Calculator. Interaction: User inputs data to see custom projections. Justification: Highly engaging, makes the business case tangible.
+    - Market Growth: Goal: Show change. Viz: Chart.js Line Chart. Interaction: Hover for tooltips. Justification: Clearly visualizes the key market trend from the whitepaper.
+    - Cost & Revenue Calculator: Goal: Inform/Engage. Viz: HTML Form + JS Calculator. Interaction: User inputs data to see custom projections. Justification: This is the core interactive element, synthesizing the cost analysis report with the market report's business models to create a powerful "what-if" tool.
     - Tech Comparison: Goal: Compare. Viz: Interactive Toggles/Tabs (HTML/JS). Interaction: Click to switch views. Justification: Simplifies a complex comparison table into a digestible, interactive element.
     - Systemic Failures: Goal: Inform. Viz: Icons + Text (HTML/CSS). Interaction: Hover/click for details. Justification: Breaks down the core problem into easily understandable points.
     - All visualizations use Canvas (Chart.js) or structured HTML/CSS with Tailwind. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
-        .chart-container { position: relative; width: 100%; max-width: 700px; margin-left: auto; margin-right: auto; height: 300px; max-height: 40vh; }
-        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 300px; max-height: 40vh; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
         .nav-link { transition: color 0.3s, border-color 0.3s; }
         .active-nav { color: #0284c7; border-bottom-color: #0284c7; }
         .inactive-nav { color: #475569; border-bottom-color: transparent; }
         .tech-btn-active { background-color: #0c4a6e; color: white; }
         .tech-btn-inactive { background-color: #e2e8f0; color: #334155; }
-        .stat-card { transition: transform 0.3s, box-shadow 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .stat-card, .competitor-card, .cost-card { transition: transform 0.3s, box-shadow 0.3s; }
+        .stat-card:hover, .competitor-card:hover, .cost-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #0284c7; cursor: pointer; border-radius: 50%; }
+        .slider-track { width: 100%; height: 8px; cursor: pointer; background: #d1d5db; border-radius: 9999px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -41,10 +43,10 @@
                 </div>
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#problem" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">問題癥結</a>
+                        <a href="#problem" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">問題根源</a>
                         <a href="#solution" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">解決方案</a>
                         <a href="#technology" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">關鍵技術</a>
-                        <a href="#market" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">市場商機</a>
+                        <a href="#market" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">市場與成本</a>
                         <a href="#blueprint" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2">實施藍圖</a>
                     </div>
                 </div>
@@ -66,10 +68,10 @@
         </nav>
         <div id="mobile-menu" class="md:hidden hidden">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#problem" class="nav-link block px-3 py-2 rounded-md text-base font-medium">問題癥結</a>
+                <a href="#problem" class="nav-link block px-3 py-2 rounded-md text-base font-medium">問題根源</a>
                 <a href="#solution" class="nav-link block px-3 py-2 rounded-md text-base font-medium">解決方案</a>
                 <a href="#technology" class="nav-link block px-3 py-2 rounded-md text-base font-medium">關鍵技術</a>
-                <a href="#market" class="nav-link block px-3 py-2 rounded-md text-base font-medium">市場商機</a>
+                <a href="#market" class="nav-link block px-3 py-2 rounded-md text-base font-medium">市場與成本</a>
                 <a href="#blueprint" class="nav-link block px-3 py-2 rounded-md text-base font-medium">實施藍圖</a>
             </div>
         </div>
@@ -87,7 +89,7 @@
         <section id="problem" class="py-16 sm:py-24 bg-white">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
-                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">問題癥結：為何救命神器淪為裝飾品？</h2>
+                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">問題根源：三大系統性失靈</h2>
                     <p class="mt-4 text-lg text-slate-600">儘管AED設置密度高，實際使用率卻極低。這並非設備不足，而是整個應急反應系統的失靈。</p>
                 </div>
 
@@ -155,7 +157,7 @@
         <section id="technology" class="py-16 sm:py-24 bg-white">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
-                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">關鍵技術：選擇正確的通訊方案</h2>
+                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">關鍵技術：專業級 vs 消費級</h2>
                     <p class="mt-4 text-lg text-slate-600">消費級追蹤器（如AirTag）無法滿足公共安全需求。專業級低功耗廣域網路（LPWAN）才是正解。</p>
                 </div>
                 <div class="mt-12 max-w-4xl mx-auto">
@@ -175,7 +177,7 @@
                         <ul class="mt-4 space-y-3 text-slate-700 list-disc list-inside">
                             <li><span class="font-semibold">高可靠性：</span>運作於授權頻譜，由電信商提供服務品質保障，干擾少，對攸關生命的設備至關重要。</li>
                             <li><span class="font-semibold">深度覆蓋：</span>專為穿透建築物、地下室和密集城市環境設計，確保訊號穩定。</li>
-                            <li><span class="font-semibold">簡化部署：</span>利用現有蜂巢式基地台，無需自建網路基礎設施。</li>
+                            <li><span class="font-semibold">簡化部署：</span>利用現有的蜂巢式基地台，無需自建網路基礎設施。</li>
                             <li><span class="font-semibold">最佳應用：</span>全市性的公共場所、政府建築、交通系統等需要最高可靠性的場景。</li>
                         </ul>
                     </div>
@@ -196,42 +198,89 @@
         <section id="market" class="py-16 sm:py-24 bg-slate-100">
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
-                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">市場商機：一個快速增長的藍海</h2>
-                    <p class="mt-4 text-lg text-slate-600">全球AED市場正穩定增長，而「智慧化管理」是其中最具潛力的區塊。</p>
+                    <h2 class="text-3xl font-bold text-slate-900 sm:text-4xl">市場與成本分析</h2>
+                    <p class="mt-4 text-lg text-slate-600">這不僅是一項公共衛生策略，更蘊含著龐大的市場潛力與清晰的成本結構。</p>
                 </div>
 
-                <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div>
+                <div class="mt-12 grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <div class="lg:col-span-3">
                         <h3 class="text-2xl font-semibold text-center mb-4">全球AED市場規模預測 (美元)</h3>
                         <div class="chart-container bg-white p-4 rounded-lg shadow-lg">
                             <canvas id="marketChart"></canvas>
                         </div>
                     </div>
-                    <div>
-                        <h3 class="text-2xl font-semibold text-center mb-4">互動營收潛力計算機</h3>
-                        <div class="bg-white p-6 rounded-lg shadow-lg">
-                            <div class="space-y-4">
-                                <div>
-                                    <label for="aed-units" class="block text-sm font-medium text-slate-700">輸入預計部署的AED數量</label>
-                                    <input type="number" id="aed-units" value="500" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2">
-                                </div>
-                                <div>
-                                    <label for="revenue-model" class="block text-sm font-medium text-slate-700">選擇營收模式</label>
-                                    <select id="revenue-model" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 sm:text-sm p-2">
-                                        <option value="sale_subscription">硬體銷售 + 平台訂閱</option>
-                                        <option value="haas">全服務租賃 (HaaS)</option>
-                                    </select>
-                                </div>
-                                <button id="calculate-btn" class="w-full bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-700 transition-colors">計算首年預估總營收</button>
+                    <div class="lg:col-span-2">
+                        <h3 class="text-2xl font-semibold text-center mb-4">台灣市場成本結構</h3>
+                         <div class="space-y-4">
+                            <div class="cost-card bg-white p-4 rounded-lg shadow-md">
+                                <h4 class="font-bold text-slate-800">一次性開發成本 (NRE)</h4>
+                                <p class="text-2xl font-bold text-sky-700 mt-1">NT$ 1.1M - 2.2M</p>
+                                <p class="text-sm text-slate-500">包含硬體研發、模具、安規認證</p>
                             </div>
-                            <div id="revenue-result" class="mt-6 text-center bg-sky-50 p-4 rounded-lg hidden">
-                                <p class="text-slate-600">首年預估總營收</p>
-                                <p id="revenue-amount" class="text-4xl font-bold text-sky-700"></p>
-                                <p id="revenue-breakdown" class="text-sm text-slate-500 mt-1"></p>
+                             <div class="cost-card bg-white p-4 rounded-lg shadow-md">
+                                <h4 class="font-bold text-slate-800">單位硬體生產成本</h4>
+                                <p class="text-2xl font-bold text-sky-700 mt-1">NT$ 700 - 1,400</p>
+                                <p class="text-sm text-slate-500">以千台量產規模估算</p>
+                            </div>
+                             <div class="cost-card bg-white p-4 rounded-lg shadow-md">
+                                <h4 class="font-bold text-slate-800">單位年營運成本</h4>
+                                <p class="text-2xl font-bold text-sky-700 mt-1">NT$ 210 - 420</p>
+                                <p class="text-sm text-slate-500">包含NB-IoT電信與雲端平台費用</p>
                             </div>
                         </div>
                     </div>
                 </div>
+                
+                <div class="mt-16 bg-white p-6 md:p-8 rounded-lg shadow-xl">
+                    <h3 class="text-2xl font-semibold text-center mb-6">互動成本與營收潛力計算機 (台幣)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-lg font-bold mb-4">1. 調整您的假設參數</h4>
+                            <div class="space-y-6">
+                                <div>
+                                    <label for="nre-cost" class="block text-sm font-medium text-slate-700">總開發成本 (NRE)</label>
+                                    <input type="range" id="nre-cost" min="1100000" max="2200000" value="1500000" step="100000" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-track">
+                                    <div class="text-center font-bold text-sky-700 mt-1" id="nre-cost-label"></div>
+                                </div>
+                                <div>
+                                    <label for="unit-cost" class="block text-sm font-medium text-slate-700">單位硬體生產成本</label>
+                                    <input type="range" id="unit-cost" min="700" max="1400" value="1000" step="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-track">
+                                    <div class="text-center font-bold text-sky-700 mt-1" id="unit-cost-label"></div>
+                                </div>
+                                <div>
+                                    <label for="sales-volume" class="block text-sm font-medium text-slate-700">預計初期銷售數量 (用於攤提)</label>
+                                    <input type="range" id="sales-volume" min="500" max="5000" value="2000" step="100" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-track">
+                                    <div class="text-center font-bold text-sky-700 mt-1" id="sales-volume-label"></div>
+                                </div>
+                                 <div>
+                                    <label for="profit-margin" class="block text-sm font-medium text-slate-700">預期利潤 (每單位)</label>
+                                    <input type="range" id="profit-margin" min="300" max="1500" value="750" step="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-track">
+                                    <div class="text-center font-bold text-sky-700 mt-1" id="profit-margin-label"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-lg flex flex-col justify-center">
+                            <h4 class="text-lg font-bold mb-4">2. 您的商業模式預估</h4>
+                            <div class="text-center space-y-4">
+                                <div>
+                                    <p class="text-slate-600">每台攤提開發成本</p>
+                                    <p id="amortized-cost" class="text-2xl font-bold text-slate-800"></p>
+                                </div>
+                                <div class="border-t pt-4">
+                                    <p class="text-slate-600">建議硬體售價 (一次性)</p>
+                                    <p class="text-4xl font-bold text-sky-700" id="hardware-price"></p>
+                                    <p class="text-xs text-slate-500">(生產成本 + 攤提成本 + 利潤)</p>
+                                </div>
+                                <div class="border-t pt-4">
+                                    <p class="text-slate-600">建議平台服務年費</p>
+                                    <p class="text-3xl font-bold text-amber-600" id="service-fee">$360</p>
+                                    <p class="text-xs text-slate-500">(基於營運成本與市場行情)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -353,10 +402,10 @@
             const marketChart = new Chart(marketCtx, {
                 type: 'line',
                 data: {
-                    labels: ['2024', '2025', '2026', '2027', '2028', '2029', '2030', '2031', '2032', '2033'],
+                    labels: ['2024', '2025', '2026', '2027', '2028', '2029', '2030'],
                     datasets: [{
                         label: '全球AED市場規模 (億美元)',
-                        data: [9.388, 10.27, 11.24, 12.30, 13.46, 14.73, 16.12, 17.64, 19.27, 21.073],
+                        data: [9.38, 10.27, 11.24, 12.30, 13.46, 14.73, 16.12],
                         backgroundColor: 'rgba(14, 165, 233, 0.2)',
                         borderColor: 'rgba(14, 165, 233, 1)',
                         borderWidth: 3,
@@ -402,47 +451,47 @@
                 }
             });
 
-            const unitsInput = document.getElementById('aed-units');
-            const modelSelect = document.getElementById('revenue-model');
-            const calculateBtn = document.getElementById('calculate-btn');
-            const resultDiv = document.getElementById('revenue-result');
-            const amountP = document.getElementById('revenue-amount');
-            const breakdownP = document.getElementById('revenue-breakdown');
+            const nreCostSlider = document.getElementById('nre-cost');
+            const unitCostSlider = document.getElementById('unit-cost');
+            const salesVolumeSlider = document.getElementById('sales-volume');
+            const profitMarginSlider = document.getElementById('profit-margin');
 
-            const prices = {
-                sale_subscription: {
-                    hardware: 250,
-                    service: 180,
-                },
-                haas: {
-                    contract: 250,
-                }
-            };
+            const nreCostLabel = document.getElementById('nre-cost-label');
+            const unitCostLabel = document.getElementById('unit-cost-label');
+            const salesVolumeLabel = document.getElementById('sales-volume-label');
+            const profitMarginLabel = document.getElementById('profit-margin-label');
 
-            function calculateRevenue() {
-                const units = parseInt(unitsInput.value) || 0;
-                const model = modelSelect.value;
-                let totalRevenue = 0;
-                let breakdownText = '';
+            const amortizedCostEl = document.getElementById('amortized-cost');
+            const hardwarePriceEl = document.getElementById('hardware-price');
 
-                if (model === 'sale_subscription') {
-                    const hardwareRevenue = units * prices.sale_subscription.hardware;
-                    const serviceRevenue = units * prices.sale_subscription.service;
-                    totalRevenue = hardwareRevenue + serviceRevenue;
-                    breakdownText = `硬體營收: $${hardwareRevenue.toLocaleString()} + 年服務費營收: $${serviceRevenue.toLocaleString()}`;
-                } else if (model === 'haas') {
-                    totalRevenue = units * prices.haas.contract;
-                    breakdownText = `年合約總金額: ${units}台 x $${prices.haas.contract}/台`;
-                }
-
-                amountP.textContent = `$${totalRevenue.toLocaleString()}`;
-                breakdownP.textContent = breakdownText;
-                resultDiv.classList.remove('hidden');
+            function formatCurrency(value) {
+                return `NT$ ${parseInt(value).toLocaleString()}`;
             }
 
-            calculateBtn.addEventListener('click', calculateRevenue);
-            
-            calculateRevenue();
+            function calculateBusinessModel() {
+                const nreCost = parseFloat(nreCostSlider.value);
+                const unitCost = parseFloat(unitCostSlider.value);
+                const salesVolume = parseFloat(salesVolumeSlider.value);
+                const profitMargin = parseFloat(profitMarginSlider.value);
+
+                nreCostLabel.textContent = formatCurrency(nreCost);
+                unitCostLabel.textContent = formatCurrency(unitCost);
+                salesVolumeLabel.textContent = `${parseInt(salesVolume).toLocaleString()} 台`;
+                profitMarginLabel.textContent = formatCurrency(profitMargin);
+
+                const amortizedCost = salesVolume > 0 ? nreCost / salesVolume : 0;
+                const hardwarePrice = unitCost + amortizedCost + profitMargin;
+
+                amortizedCostEl.textContent = formatCurrency(amortizedCost);
+                hardwarePriceEl.textContent = formatCurrency(hardwarePrice);
+            }
+
+            nreCostSlider.addEventListener('input', calculateBusinessModel);
+            unitCostSlider.addEventListener('input', calculateBusinessModel);
+            salesVolumeSlider.addEventListener('input', calculateBusinessModel);
+            profitMarginSlider.addEventListener('input', calculateBusinessModel);
+
+            calculateBusinessModel();
         });
     </script>
 </body>
